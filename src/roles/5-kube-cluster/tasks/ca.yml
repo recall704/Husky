@@ -1,0 +1,62 @@
+
+
+# 证书准备
+# =================================================================================
+- name: Copy ca file
+  copy: src={{ cfssl_out_dir }}/ca/{{ item }} dest={{ ca_dir }}/{{ item }} mode=0644
+  with_items:
+    - ca-key.pem
+    - ca.pem
+    - ca.csr
+  tags:
+    - master
+
+
+- name: Copy etcd certificate file
+  copy: src={{ cfssl_out_dir }}/etcd/{{ item }} dest={{ etcd_ca_dir }}/{{ item }} mode=0644
+  with_items:
+    - etcd-key.pem
+    - etcd.pem
+    - etcd.csr
+
+
+- name: Copy kubernetes certificate file
+  copy: src={{ cfssl_out_dir }}/k8s/{{ item }} dest={{ ca_dir }}/{{ item }} mode=0644
+  with_items:
+    - kubernetes-key.pem
+    - kubernetes.pem
+    - kubernetes.csr
+    - kube-proxy-key.pem
+    - kube-proxy.pem
+    - kube-proxy.csr
+
+- name: Copy admin certificate file
+  copy: src={{ cfssl_out_dir }}/admin/{{ item }} dest={{ ca_dir }}/{{ item }} mode=0644
+  with_items:
+    - admin-key.pem
+    - admin.pem
+    - admin.csr
+
+
+
+# kubectl 参数配置
+# 创建kubectl kubeconfig 文件
+- name: Set kubectl config
+  shell: "{{ bin_dir }}/kubectl config set-cluster kubernetes \
+        --certificate-authority={{ ca_dir }}/ca.pem \
+        --embed-certs=true \
+        --server={{ KUBE_APISERVER }}"
+
+- name: Set kubectl credentials
+  shell: "{{ bin_dir }}/kubectl config set-credentials admin \
+        --client-certificate={{ ca_dir }}/admin.pem \
+        --embed-certs=true \
+        --client-key={{ ca_dir }}/admin-key.pem"
+
+- name: Set kubectl context
+  shell: "{{ bin_dir }}/kubectl config set-context kubernetes \
+	      --cluster=kubernetes \
+        --user=admin"
+
+- name: Set kubectl default context
+  shell: "{{ bin_dir }}/kubectl config use-context kubernetes"

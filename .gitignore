@@ -1,0 +1,14 @@
+.venv
+.vscode
+cluster.retry
+
+
+src/roles/2-ca/output/admin
+src/roles/2-ca/output/ca
+src/roles/2-ca/output/etcd
+src/roles/2-ca/output/k8s
+
+!src/roles/2-ca/output/admin/.gitkeep
+!src/roles/2-ca/output/ca/.gitkeep
+!src/roles/2-ca/output/etcd/.gitkeep
+!src/roles/2-ca/output/k8s/.gitkeep

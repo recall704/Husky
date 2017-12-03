@@ -1,0 +1,28 @@
+
+
+
+# 配置 ca 和 生成 ca 证书
+- name: Config ca-config.json
+  template:
+    src: ca/ca-config.json.j2
+    dest: "{{ cfssl_out_dir }}/ca/ca-config.json"
+    mode: 0644
+  delegate_to: localhost
+  run_once: true
+
+
+
+
+- name: config ca-csr.json
+  template:
+    src: ca/ca-csr.json.j2
+    dest: "{{ cfssl_out_dir }}/ca/ca-csr.json"
+    mode: 0644
+  delegate_to: localhost
+  run_once: true
+
+
+- name: Make ca
+  shell: "{{ cfssl_bin_dir }}/cfssl gencert -initca {{ cfssl_out_dir }}/ca/ca-csr.json | {{ cfssl_bin_dir }}/cfssljson -bare {{ cfssl_out_dir }}/ca/ca"
+  delegate_to: localhost
+  run_once: true

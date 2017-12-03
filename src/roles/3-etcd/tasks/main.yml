@@ -1,0 +1,94 @@
+
+
+
+# 目录准备
+- name: Create etcd data directory
+  file:
+    path: "/var/lib/etcd"
+    state: directory
+    mode: 0755
+  tags:
+    - etcd
+
+
+- name: Create ca directory
+  file:
+    path: "{{ ca_dir }}"
+    state: directory
+    mode: 0755
+  tags:
+    - etcd
+
+
+- name: Create etcd certificate  directory
+  file:
+    path: "{{ etcd_ca_dir }}"
+    state: directory
+    mode: 0755
+  tags:
+    - etcd
+
+
+# 证书准备
+- name: Copy ca file
+  copy: src={{ cfssl_out_dir }}/ca/{{ item }} dest={{ ca_dir }}/{{ item }} mode=0644
+  with_items:
+    - ca-key.pem
+    - ca.pem
+    - ca.csr
+  tags:
+    - etcd
+
+- name: Copy etcd certificate file
+  copy: src={{ cfssl_out_dir }}/etcd/{{ item }} dest={{ etcd_ca_dir }}/{{ item }} mode=0644
+  with_items:
+    - etcd-key.pem
+    - etcd.pem
+    - etcd.csr
+  tags:
+    - etcd
+
+# 变量准备
+
+
+
+
+
+# bin
+- name: Unarchive etcd bin
+  unarchive:
+    src: etcd.tar.gz
+    dest: "{{ bin_dir }}"
+    mode: 0775
+  tags:
+    - etcd
+
+
+- name: Config etcd service
+  template:
+    src: etcd.service.j2
+    dest: /etc/systemd/system/etcd.service
+    mode: 0644
+  tags:
+    - etcd
+
+
+- name: restart etcd.service
+  service: 
+    name: etcd.service 
+    state: restarted 
+    enabled: yes 
+    daemon-reload: yes
+  tags:
+    - etcd
+
+
+# 检查是否成功
+- name: check etcd health
+  shell: "{{ bin_dir }}/etcdctl \
+          --ca-file={{ ca_dir }}/ca.pem \
+          --cert-file={{ etcd_ca_dir }}/etcd.pem \
+          --key-file={{ etcd_ca_dir }}/etcd-key.pem \
+          cluster-health"
+  tags:
+    - etcd

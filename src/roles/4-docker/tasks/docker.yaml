@@ -1,0 +1,76 @@
+---
+
+#- name: Copy docker to node
+#  copy: src={{ docker_install_file }} dest=/tmp
+
+- name: Unarchive rpm docker file to /tmp
+  unarchive: 
+    src: docker.tar.gz
+    dest: /tmp
+
+
+# - name: Install docker
+#   shell: cd /tmp/docker/ && yum -y localinstall *.rpm
+
+
+- name: Install docker
+  yum: 
+      name="/tmp/docker/{{ item }}"
+      state=present
+      update_cache=yes
+      allow_downgrade=yes
+  with_items:
+    - audit-libs-python-2.7.6-3.el7.x86_64.rpm
+    - checkpolicy-2.5-4.el7.x86_64.rpm
+    - docker-engine-1.12.6-1.el7.centos.x86_64.rpm
+    - docker-engine-selinux-1.12.6-1.el7.centos.noarch.rpm
+    - libcgroup-0.41-13.el7.x86_64.rpm
+    - libseccomp-2.3.1-3.el7.x86_64.rpm
+    - libsemanage-python-2.5-8.el7.x86_64.rpm
+    - libtool-ltdl-2.4.2-22.el7_3.x86_64.rpm
+    - policycoreutils-python-2.5-17.1.el7.x86_64.rpm
+    - python-IPy-0.75-6.el7.noarch.rpm
+    - setools-libs-3.3.8-1.1.el7.x86_64.rpm
+  tags:
+    - docker
+
+
+- name: remove the docker file
+  file: path=/tmp/docker state=absent
+
+
+- name: Create /etc/docker directory
+  file: path=/etc/docker state=directory mode=0755
+  tags:
+    - common
+    - docker
+    - docker_config
+
+- name: config daemon.json
+  template: 
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    mode: 0644
+  tags:
+    - common
+    - docker
+    - docker_config
+
+- name: config docker service
+  template: 
+    src: docker.service.j2
+    dest: /etc/systemd/system/docker.service
+    mode: 0644
+  tags:
+    - common
+    - docker
+    - docker_config
+
+- name: restart docker service
+  service: name=docker state=restarted enabled=yes daemon-reload=yes
+  register: docker_done
+  tags:
+    - common
+    - docker
+
+

@@ -1,0 +1,14 @@
+
+
+
+- name: Config dashboard
+  template:
+    src: kubernetes-dashboard.yaml.j2
+    dest: "{{ kube_addon_dir }}/kubernetes-dashboard.yaml"
+    mode: 0644
+
+
+- name: Start dashboard
+  shell: "kubectl apply -f {{ kube_addon_dir }}/kubernetes-dashboard.yaml"
+
+

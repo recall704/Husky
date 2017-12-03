@@ -1,0 +1,12 @@
+- name: Unarchive docker-py rpm file /tmp
+  unarchive: 
+    src: docker-py.tar.gz
+    dest: /tmp
+
+
+- name: Install pip
+  shell: cd /tmp/docker-py && pip install *.tar.gz && pip install *.whl
+
+
+- name: remove the docker-py file
+  file: path=/tmp/docker-py state=absent

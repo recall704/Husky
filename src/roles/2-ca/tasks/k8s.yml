@@ -1,0 +1,40 @@
+
+
+- name: Config kubernetes-csr.json
+  template:
+    src: k8s/kubernetes-csr.json.j2
+    dest: "{{ cfssl_out_dir }}/k8s/kubernetes-csr.json"
+    mode: 0644
+  delegate_to: localhost
+  run_once: true
+
+- name: Make kubernetes certificate
+  shell: "{{ cfssl_bin_dir }}/cfssl gencert \
+      -ca={{ cfssl_out_dir }}/ca/ca.pem \
+      -ca-key={{ cfssl_out_dir }}/ca/ca-key.pem \
+      -config={{ cfssl_out_dir }}/ca/ca-config.json  \
+      -profile=kubernetes {{ cfssl_out_dir }}/k8s/kubernetes-csr.json \
+    | {{ cfssl_bin_dir }}/cfssljson -bare {{ cfssl_out_dir }}/k8s/kubernetes"
+  delegate_to: localhost
+  run_once: true
+
+
+
+# ===================================
+- name: Config kube-proxy-csr.json
+  template:
+    src: k8s/kube-proxy-csr.json.j2
+    dest: "{{ cfssl_out_dir }}/k8s/kube-proxy-csr.json"
+    mode: 0644
+  delegate_to: localhost
+  run_once: true
+
+- name: Make kube-proxy certificate
+  shell: "{{ cfssl_bin_dir }}/cfssl gencert \
+      -ca={{ cfssl_out_dir }}/ca/ca.pem \
+      -ca-key={{ cfssl_out_dir }}/ca/ca-key.pem \
+      -config={{ cfssl_out_dir }}/ca/ca-config.json  \
+      -profile=kubernetes {{ cfssl_out_dir }}/k8s/kube-proxy-csr.json \
+    | {{ cfssl_bin_dir }}/cfssljson -bare {{ cfssl_out_dir }}/k8s/kube-proxy"
+  delegate_to: localhost
+  run_once: true

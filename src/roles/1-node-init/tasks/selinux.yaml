@@ -1,0 +1,31 @@
+---
+
+- name: Unarchive selinux file to /tmp
+  unarchive: 
+    src: selinux.tar.gz
+    dest: /tmp
+
+
+- name: Install selinux python package
+  yum: 
+      name="/tmp/selinux/{{ item }}"
+      state=present
+      update_cache=yes
+      allow_downgrade=yes
+  with_items:
+    - libselinux-python-2.5-11.el7.x86_64.rpm
+    - libsemanage-2.5-8.el7.x86_64.rpm
+
+
+- name: remove the selinux file
+  file: path=/tmp/selinux state=absent
+
+
+- name: Disable SELinux at next reboot
+  selinux:
+    state: disabled
+
+- name: Set SELinux in permissive mode until the machine is rebooted
+  command: setenforce 0
+  ignore_errors: true
+  changed_when: false

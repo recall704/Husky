@@ -1,0 +1,35 @@
+
+
+
+- name: Config influxdb.yaml
+  template:
+    src: influxdb.yaml.j2
+    dest: "{{ kube_addon_dir }}/influxdb.yaml"
+    mode: 0644
+
+
+- name: Config heapster.yaml
+  template:
+    src: heapster.yaml.j2
+    dest: "{{ kube_addon_dir }}/heapster.yaml"
+    mode: 0644
+
+
+- name: Config grafana.yaml
+  template:
+    src: grafana.yaml.j2
+    dest: "{{ kube_addon_dir }}/grafana.yaml"
+    mode: 0644
+
+
+
+- name: Start influxdb
+  shell: "kubectl apply -f {{ kube_addon_dir }}/influxdb.yaml"
+
+
+
+- name: Start heapster
+  shell: "kubectl apply -f {{ kube_addon_dir }}/heapster.yaml"
+
+- name: Start grafana
+  shell: "kubectl apply -f {{ kube_addon_dir }}/grafana.yaml"

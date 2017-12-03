@@ -1,0 +1,16 @@
+
+
+
+
+- name: Unarchive k8s bin
+  unarchive: 
+    src: k8s.bin.1.8.2.tar.gz
+    dest: "{{ bin_dir }}"
+    mode: 0755
+
+
+- name: Unarchive calico bin
+  unarchive: 
+    src: calico.bin.tar.gz
+    dest: "{{ bin_dir }}"
+    mode: 0755

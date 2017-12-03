@@ -1,0 +1,55 @@
+
+
+
+- name: Create cni config directory
+  file: 
+    path: /etc/cni/net.d
+    state: directory 
+    mode: 0755
+
+
+- name: Create calico ssl directory
+  file: 
+    path: /etc/calico/ssl
+    state: directory 
+    mode: 0755
+
+
+- name: Copy ca file
+  copy: src={{ cfssl_out_dir }}/ca/{{ item }} dest=/etc/calico/ssl/{{ item }} mode=0644
+  with_items:
+    - ca-key.pem
+    - ca.pem
+    - ca.csr
+  tags:
+    - master
+
+
+- name: Copy etcd certificate file
+  copy: src={{ cfssl_out_dir }}/etcd/{{ item }} dest=/etc/calico/ssl/{{ item }} mode=0644
+  with_items:
+    - etcd-key.pem
+    - etcd.pem
+    - etcd.csr
+
+
+- name: Config calico-node service
+  template: 
+    src: calico-node.service.j2 
+    dest: /etc/systemd/system/calico-node.service
+
+
+
+- name: Config calicoctl
+  template: src=calicoctl.cfg.j2 dest=/etc/calico/calicoctl.cfg
+
+- name: Config cni calico
+  template: src=cni-calico.conf.j2 dest=/etc/cni/net.d/10-calico.conf
+
+
+
+- name: restart calico-node service
+  service: name=calico-node state=restarted enabled=yes daemon-reload=yes
+  tags:
+    - master
+    - calico-node

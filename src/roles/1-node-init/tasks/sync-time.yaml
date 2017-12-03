@@ -1,0 +1,34 @@
+
+
+
+# - name: Install ntpdate | YUM
+#   yum:
+#     name: ntpdate
+#     state: present
+#   tags:
+#     - ntpdate
+
+
+- name: Unarchive rpm ntpdate file to /tmp
+  unarchive: 
+    src: ntpdate.tar.gz
+    dest: /tmp
+  tags:
+    - ntpdate
+
+
+- name: Install ntpdate
+  yum: 
+      name="/tmp/ntpdate.rpm"
+      state=present
+      update_cache=yes
+      allow_downgrade=yes
+  tags:
+    - ntpdate
+
+
+- name: sync system time
+  command: "ntpdate {{ ntp_server }}"
+  tags:
+    - ntpdate
+    - sync-time

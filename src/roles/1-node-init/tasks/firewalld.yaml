@@ -1,0 +1,28 @@
+---
+
+- name: Unarchive rpm firewalld file to /tmp
+  unarchive: 
+    src: firewalld.tar.gz
+    dest: /tmp
+  tags:
+    - firewalld
+
+
+- name: Install firewalld
+  yum: 
+      name="/tmp/firewalld.rpm"
+      state=present
+      update_cache=yes
+      allow_downgrade=yes
+  tags:
+    - ntpdate
+
+- name: Ensure firewalld disabled.
+  service: name=firewalld state=stopped enabled=no
+  tags:
+    - firewalld
+
+# - name: Set iptable forward
+#   raw: iptables -P FORWARD ACCEPT
+#   tags:
+#     - ipv4_forward

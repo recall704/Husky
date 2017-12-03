@@ -1,0 +1,23 @@
+
+
+
+- name: Create addons directory
+  file:
+    path: "{{ kube_addon_dir }}"
+    state: directory
+    mode: 0755
+
+- name: Approve
+  raw: kubectl get csr|grep "csr"|grep 'Pending' |awk '{print $1}'|xargs kubectl certificate approve
+
+
+- name: config calico-kube-controllers
+  template: 
+    src: calico.yaml.j2
+    dest: "{{ kube_addon_dir }}/calico.yaml"
+    mode: 0644
+
+
+- name: Apply calico-kube-controllers
+  shell: "kubectl apply -f {{ kube_addon_dir }}/calico.yaml"
+

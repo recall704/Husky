@@ -1,0 +1,31 @@
+
+
+- name: Config centos base repo
+  template:
+    src: base-repo.j2
+    dest: /etc/yum.repos.d/CentOS-Base.repo
+    mode: 0644
+  tags:
+    - yum
+
+- name: Config epel repo
+  template:
+    src: epel-repo.j2
+    dest: /etc/yum.repos.d/epel.repo
+    mode: 0644
+  tags:
+    - yum
+
+- name: Check presence of fastestmirror.conf
+  stat:
+    path: /etc/yum/pluginconf.d/fastestmirror.conf
+  register: fastestmirror
+
+
+- name: Disable fastestmirror plugin
+  lineinfile:
+    dest: /etc/yum/pluginconf.d/fastestmirror.conf
+    regexp: "^enabled=.*"
+    line: "enabled=0"
+    state: present
+  when: fastestmirror.stat.exists

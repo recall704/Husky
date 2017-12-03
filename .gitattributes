@@ -1,0 +1,1 @@
+src/roles/5-kube-cluster/files/k8s.bin.1.8.2.tar.gz filter=lfs diff=lfs merge=lfs -text

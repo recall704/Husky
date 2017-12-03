@@ -1,0 +1,87 @@
+
+
+
+
+
+# =================================================================================
+- name: config token
+  template: 
+    src: token.csv.j2
+    dest: "{{ ca_dir }}/token.csv"
+    mode: 0644
+
+
+- name: config basic auth file
+  template: 
+    src: basic-auth.csv.j2
+    dest: "{{ ca_dir }}/basic-auth.csv"
+    mode: 0644
+
+
+# =================================================================================
+
+- name: config kube-apiserver.service file
+  template: 
+    src: kube-apiserver.service.j2
+    dest: /etc/systemd/system/kube-apiserver.service
+    mode: 0644
+
+
+- name: config kube-controller service file
+  template: 
+    src: kube-controller-manager.service.j2
+    dest: /etc/systemd/system/kube-controller-manager.service
+    mode: 0644
+
+
+- name: config kube-controller service file
+  template: 
+    src: kube-scheduler.service.j2
+    dest: /etc/systemd/system/kube-scheduler.service
+    mode: 0644
+
+# =================================================================================
+- name: restart kube-apiserver service
+  service: name=kube-apiserver state=restarted enabled=yes daemon-reload=yes
+  tags:
+    - master
+    - kube-apiserver
+
+
+- name: restart kube-controller-manager service
+  service: name=kube-controller-manager state=restarted enabled=yes daemon-reload=yes
+  tags:
+    - master
+    - kube-controller-manager
+
+- name: restart kube-scheduler service
+  service: name=kube-scheduler state=restarted enabled=yes daemon-reload=yes
+  tags:
+    - master
+    - kube-scheduler
+
+
+
+# =================================================================================
+
+
+
+# kubelet bootstrap rbac
+
+
+- name: Wait for apiserver become available
+  wait_for: 
+    host: "{{ MASTER_IP }}" 
+    port: "{{ MASTER_PORT }}"
+    state: started 
+    timeout: "{{ wait_for_timeout }}"
+    delay: 10
+
+
+# 重复执行会报错
+- name: kubelet-bootstrap-setting
+  shell: "{{ bin_dir }}/kubectl create clusterrolebinding kubelet-bootstrap \
+        --clusterrole=system:node-bootstrapper \
+        --user=kubelet-bootstrap"
+  run_once: true
+  ignore_errors: true

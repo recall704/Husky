@@ -1,0 +1,66 @@
+
+
+
+
+- hosts: all
+  any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+  gather_facts: false
+  roles:
+    - { role: 1-node-init, tags: ["node-init"]}
+
+
+
+- hosts: localhost
+  any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+  gather_facts: false
+  roles:
+    - { role: 2-ca, tags: ["ca"]}
+
+
+- hosts: etcd
+  any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+  gather_facts: false
+  roles:
+    - { role: 3-etcd, tags: ["etcd"]}
+
+
+
+- hosts: k8s-cluster
+  any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+  gather_facts: false
+  roles:
+    - { role: 4-docker, tags: ["docker"]}
+    - { role: 5-kube-cluster, tags: ["k8s-cluster"]}
+
+
+- hosts: master
+  any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+  gather_facts: false
+  roles:
+    - { role: 6-kube-master, tags: ["master"]}
+
+
+- hosts: k8s-cluster
+  any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+  gather_facts: false
+  roles:
+    - { role: 7-kube-node, tags: ["worker"]}
+
+
+- hosts: master
+  any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+  gather_facts: false
+  roles:
+    - { role: 8-tail-work, tags: ["tail"]}
+
+
+
+# addon
+- hosts: master
+  any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+  gather_facts: false
+  roles:
+    - { role: 9-addons/dns, tags: ["dns"]}
+    - { role: 9-addons/dashboard, tags: ["dashboard"]}
+    - { role: 9-addons/heapster, tags: ["heapster"]}
+

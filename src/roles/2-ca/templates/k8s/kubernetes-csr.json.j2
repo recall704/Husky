@@ -1,0 +1,29 @@
+{
+  "CN": "kubernetes",
+  "hosts": [
+    "127.0.0.1",
+    {% for item in groups['k8s-cluster'] %}"{{ hostvars[item]['ansible_ssh_host'] }}",
+    {% endfor %}
+    {% for item in groups['k8s-cluster'] %}"{{ hostvars[item]['inventory_hostname_short'] }}",
+    {% endfor %}
+    "{{ CLUSTER_KUBERNETES_SVC_IP }}",
+    "kubernetes",
+    "kubernetes.default",
+    "kubernetes.default.svc",
+    "kubernetes.default.svc.cluster",
+    "kubernetes.default.svc.cluster.local"
+  ],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "BeiJing",
+      "L": "BeiJing",
+      "O": "k8s",
+      "OU": "System"
+    }
+  ]
+}

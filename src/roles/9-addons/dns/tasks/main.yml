@@ -1,0 +1,11 @@
+
+
+- name: Config dns
+  template:
+    src: dns.yaml.j2
+    dest: "{{ kube_addon_dir }}/dns.yaml"
+    mode: 0644
+
+
+- name: Start kube-dns pod
+  shell: "kubectl apply -f {{ kube_addon_dir }}/dns.yaml"

@@ -1,0 +1,24 @@
+
+
+
+
+
+
+
+- name: Config admin-csr.json
+  template:
+    src: admin/admin-csr.json.j2
+    dest: "{{ cfssl_out_dir }}/admin/admin-csr.json"
+    mode: 0644
+  delegate_to: localhost
+  run_once: true
+
+- name: Make etcd certificate
+  shell: "{{ cfssl_bin_dir }}/cfssl gencert \
+      -ca={{ cfssl_out_dir }}/ca/ca.pem \
+      -ca-key={{ cfssl_out_dir }}/ca/ca-key.pem \
+      -config={{ cfssl_out_dir }}/ca/ca-config.json  \
+      -profile=kubernetes {{ cfssl_out_dir }}/admin/admin-csr.json \
+    | {{ cfssl_bin_dir }}/cfssljson -bare {{ cfssl_out_dir }}/admin/admin"
+  delegate_to: localhost
+  run_once: true

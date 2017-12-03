@@ -1,0 +1,25 @@
+
+
+# - name: Display all variables/facts known for a host
+#   debug: var=hostvars['node1']
+#   tags:
+#     - debug
+
+
+- name: Add IP address of all hosts to all hosts
+  blockinfile:
+    dest: /etc/hosts
+    block: |-
+      {% for item in groups['all'] %}{{ hostvars[item]['ansible_ssh_host'] }} {{ hostvars[item]['inventory_hostname_short'] }}
+      {% endfor %}
+    state: present
+    create: yes
+    backup: yes
+    marker: "# Ansible inventory hosts {mark}"
+  tags:
+    - hosts
+
+- name: Set hostname
+  shell: "/usr/bin/hostnamectl set-hostname {{ hostvars[inventory_hostname]['inventory_hostname_short'] }}"
+  tags:
+    - hostname

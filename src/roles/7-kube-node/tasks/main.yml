@@ -1,0 +1,105 @@
+
+
+
+- include: calico.yml
+
+# kubeconfig 准备
+
+# ------------------------------------------------------------------------------------------------------------------------
+# 1. 设置 bootstrap 配置文件
+- name: Set bootstrap config
+  shell: "{{ bin_dir }}/kubectl config set-cluster kubernetes \
+        --certificate-authority={{ ca_dir }}/ca.pem \
+        --embed-certs=true \
+        --server={{ KUBE_APISERVER }} \
+        --kubeconfig={{ kube_config_dir }}/bootstrap.kubeconfig"
+
+- name: Set bootstrap credentials
+  shell: "{{ bin_dir }}/kubectl config set-credentials kubelet-bootstrap \
+        --token={{ BOOTSTRAP_TOKEN }} \
+        --kubeconfig={{ kube_config_dir }}/bootstrap.kubeconfig"
+
+- name: Set bootstrap config context
+  shell: "{{ bin_dir }}/kubectl config set-context default \
+        --cluster=kubernetes \
+        --user=kubelet-bootstrap \
+        --kubeconfig={{ kube_config_dir }}/bootstrap.kubeconfig"
+
+- name: Set bootstrap default context
+  shell: "{{ bin_dir }}/kubectl config use-context default --kubeconfig={{ kube_config_dir }}/bootstrap.kubeconfig"
+
+
+# ------------------------------------------------------------------------------------------------------------------------
+# 2. 设置 kube-proxy 配置文件
+
+
+
+- name: Set kube-proxy config
+  shell: "{{ bin_dir }}/kubectl config set-cluster kubernetes \
+        --certificate-authority={{ ca_dir }}/ca.pem \
+        --embed-certs=true \
+        --server={{ KUBE_APISERVER }} \
+        --kubeconfig={{ kube_config_dir }}/kube-proxy.kubeconfig"
+
+- name: Set kube-proxy credentials
+  shell: "{{ bin_dir }}/kubectl config set-credentials kube-proxy \
+	      --client-certificate={{ ca_dir }}/kube-proxy.pem \
+	      --client-key={{ ca_dir }}/kube-proxy-key.pem \
+        --embed-certs=true \
+        --kubeconfig={{ kube_config_dir }}/kube-proxy.kubeconfig"
+
+- name: Set kube-proxy config context
+  shell: "{{ bin_dir }}/kubectl config set-context default \
+        --cluster=kubernetes \
+        --user=kube-proxy \
+        --kubeconfig={{ kube_config_dir }}/kube-proxy.kubeconfig"
+
+- name: Set kube-proxy default context
+  shell: "{{ bin_dir }}/kubectl config use-context default --kubeconfig={{ kube_config_dir }}/kube-proxy.kubeconfig"
+
+
+
+# kubelet 与 kube-proxy
+- name: Create kubelet work directory
+  file: 
+    path: /var/lib/kubelet
+    state: directory 
+    mode: 0755
+
+
+
+- name: Create kube-proxy work directory
+  file: 
+    path: /var/lib/kube-proxy
+    state: directory 
+    mode: 0755
+
+- name: config kubelet.service file
+  template: 
+    src: kubelet.service.j2
+    dest: /etc/systemd/system/kubelet.service
+    mode: 0644
+
+
+- name: config kube-proxy service file
+  template: 
+    src: kube-proxy.service.j2
+    dest: /etc/systemd/system/kube-proxy.service
+    mode: 0644
+
+
+# =================================================================================
+- name: restart kubelet service
+  service: name=kubelet state=restarted enabled=yes daemon-reload=yes
+  tags:
+    - master
+    - kubelet
+
+
+- name: restart kube-proxy service
+  service: name=kube-proxy state=restarted enabled=yes daemon-reload=yes
+  tags:
+    - master
+    - kube-proxy
+
+

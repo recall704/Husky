@@ -3,6 +3,7 @@
 # 机器准备
 1. deploy 机器准备，需要一台机器执行 ansible 脚本，必须是 linux 64 bit 系统，否则无法运行 cfssl 
 2. k8s 机器准备，我当前测试过的机器为  centos 7.2 mini 64 bit
+3. 部署的版本是 1.8.2 
 
 
 # 执行脚本

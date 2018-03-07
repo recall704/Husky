@@ -20,7 +20,6 @@
 - name: remove the selinux file
   file: path=/tmp/selinux state=absent
 
-
 - name: Disable SELinux at next reboot
   selinux:
     state: disabled

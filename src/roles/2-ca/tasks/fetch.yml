@@ -1,0 +1,27 @@
+
+
+# 拷贝证书到本地
+
+
+
+- name: copy ca files from master
+  fetch:
+    src: "/etc/kubernetes/pki/{{ item }}"
+    dest: "{{ cfssl_out_dir }}/"
+    flat: yes
+  with_items:
+    - ca-key.pem
+    - ca.pem
+    - ca.csr
+    - etcd-key.pem
+    - etcd.pem
+    - etcd.csr
+    - kubernetes-key.pem
+    - kubernetes.pem
+    - kubernetes.csr
+    - kube-proxy-key.pem
+    - kube-proxy.pem
+    - kube-proxy.csr
+    - admin-key.pem
+    - admin.pem
+    - admin.csr

@@ -1,20 +1,28 @@
 
 
 
-
+# 初始化节点以及安装 docker
 - hosts: all
   any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
   gather_facts: false
   roles:
     - { role: 1-node-init, tags: ["node-init"]}
+    - { role: 4-docker, tags: ["docker"]}
+    
 
-
-
-- hosts: localhost
+# 在 master 上生成证书，并同步到所有节点
+- hosts: master[0]
   any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
   gather_facts: false
   roles:
     - { role: 2-ca, tags: ["ca"]}
+
+
+# - hosts: localhost
+#   any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+#   gather_facts: false
+#   roles:
+#     - { role: 2-ca, tags: ["ca"]}
 
 
 - hosts: etcd
@@ -29,7 +37,6 @@
   any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
   gather_facts: false
   roles:
-    - { role: 4-docker, tags: ["docker"]}
     - { role: 5-kube-cluster, tags: ["k8s-cluster"]}
 
 
@@ -61,6 +68,6 @@
   gather_facts: false
   roles:
     - { role: 9-addons/dns, tags: ["dns"]}
-    - { role: 9-addons/dashboard, tags: ["dashboard"]}
-    - { role: 9-addons/heapster, tags: ["heapster"]}
+#     - { role: 9-addons/dashboard, tags: ["dashboard"]}
+#     - { role: 9-addons/heapster, tags: ["heapster"]}
 

@@ -1,20 +1,20 @@
 
 
-- name: Create /tmp/images directory
-  file: path=/tmp/images state=directory mode=0755
+- name: Create /tmp/gcrimages directory
+  file: path=/tmp/gcrimages state=directory mode=0755
 
 
 - name: Copy images to node
   copy:
     src: "{{ item }}"
-    dest: "/tmp/images"
+    dest: "/tmp/gcrimages/{{ item }}"
     mode: 0644
   with_items:
     - gcr.pause.tar
 
 
 - name: Load images
-  shell: "docker load -i /tmp/images/{{ item }}"
+  shell: "docker load -i /tmp/gcrimages/{{ item }}"
   with_items:
     - gcr.pause.tar
 

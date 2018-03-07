@@ -1,0 +1,69 @@
+
+# 拷贝镜像到 master
+- name: Create /tmp/ca directory
+  file: path=/tmp/ca state=directory mode=0755
+
+- name: Copy images to master
+  copy:
+    src: "{{ item }}"
+    dest: "/tmp/ca"
+    mode: 0644
+  with_items:
+    - pki_tools.tar
+
+
+- name: Load images
+  shell: "docker load -i /tmp/ca/{{ item }}"
+  with_items:
+    - pki_tools.tar
+
+
+# 模板准备
+- name: Create /etc/kubernetes/pki directory
+  file: path=/etc/kubernetes/pki state=directory mode=0755
+
+- name: Config ca-config.json
+  template:
+    src: ca/ca-config.json.j2
+    dest: "/etc/kubernetes/pki/ca-config.json"
+    mode: 0644
+
+- name: config ca-csr.json
+  template:
+    src: ca/ca-csr.json.j2
+    dest: "/etc/kubernetes/pki/ca-csr.json"
+    mode: 0644
+
+- name: Config etcd-csr.json
+  template:
+    src: etcd/etcd-csr.json.j2
+    dest: "/etc/kubernetes/pki/etcd-csr.json"
+    mode: 0644
+
+- name: Config kubernetes-csr.json
+  template:
+    src: k8s/kubernetes-csr.json.j2
+    dest: "/etc/kubernetes/pki/kubernetes-csr.json"
+    mode: 0644
+
+- name: Config kube-proxy-csr.json
+  template:
+    src: k8s/kube-proxy-csr.json.j2
+    dest: "/etc/kubernetes/pki/kube-proxy-csr.json"
+    mode: 0644
+
+- name: Config admin-csr.json
+  template:
+    src: admin/admin-csr.json.j2
+    dest: "/etc/kubernetes/pki/admin-csr.json"
+    mode: 0644
+
+# 通过 docker 生成证书
+- name: Config admin-csr.json
+  template:
+    src: gen.sh
+    dest: "/etc/kubernetes/pki/gen.sh"
+    mode: 0755
+
+- name: ca container
+  shell: "docker run --rm -v /etc/kubernetes/pki:/code win7/pki_tools:v1.2.0 /code/gen.sh"

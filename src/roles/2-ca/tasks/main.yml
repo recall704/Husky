@@ -2,7 +2,9 @@
 
 
 
-- include: ca.yml
-- include: etcd.yml
-- include: k8s.yml
-- include: admin.yml
+# - include: ca.yml
+# - include: etcd.yml
+# - include: k8s.yml
+# - include: admin.yml
+- include: container_ca.yml
+- include: fetch.yml

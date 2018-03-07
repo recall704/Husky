@@ -67,7 +67,6 @@
     mode: 0755
 
 
-
 - name: Create kube-proxy work directory
   file: 
     path: /var/lib/kube-proxy

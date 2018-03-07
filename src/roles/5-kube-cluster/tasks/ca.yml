@@ -3,7 +3,7 @@
 # 证书准备
 # =================================================================================
 - name: Copy ca file
-  copy: src={{ cfssl_out_dir }}/ca/{{ item }} dest={{ ca_dir }}/{{ item }} mode=0644
+  copy: src={{ cfssl_out_dir }}/{{ item }} dest={{ ca_dir }}/{{ item }} mode=0644
   with_items:
     - ca-key.pem
     - ca.pem
@@ -13,7 +13,7 @@
 
 
 - name: Copy etcd certificate file
-  copy: src={{ cfssl_out_dir }}/etcd/{{ item }} dest={{ etcd_ca_dir }}/{{ item }} mode=0644
+  copy: src={{ cfssl_out_dir }}/{{ item }} dest={{ etcd_ca_dir }}/{{ item }} mode=0644
   with_items:
     - etcd-key.pem
     - etcd.pem
@@ -21,7 +21,7 @@
 
 
 - name: Copy kubernetes certificate file
-  copy: src={{ cfssl_out_dir }}/k8s/{{ item }} dest={{ ca_dir }}/{{ item }} mode=0644
+  copy: src={{ cfssl_out_dir }}/{{ item }} dest={{ ca_dir }}/{{ item }} mode=0644
   with_items:
     - kubernetes-key.pem
     - kubernetes.pem
@@ -31,7 +31,7 @@
     - kube-proxy.csr
 
 - name: Copy admin certificate file
-  copy: src={{ cfssl_out_dir }}/admin/{{ item }} dest={{ ca_dir }}/{{ item }} mode=0644
+  copy: src={{ cfssl_out_dir }}/{{ item }} dest={{ ca_dir }}/{{ item }} mode=0644
   with_items:
     - admin-key.pem
     - admin.pem
